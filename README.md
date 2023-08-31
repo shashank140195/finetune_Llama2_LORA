@@ -13,7 +13,14 @@ Once both requests are approved, follow the below directions.
 # Dataset
 The full modified raw dataset is available at this [link](https://drive.google.com/drive/folders/1XkfRKwWdrrV-wdzp9GdEXJHTHit9GbNi?usp=sharing). This dataset has been modified and made error free and has been released publically by me for further research. 
 
-# 1. Environment preparation
+## 1. Preparing data for the model
+Once you download the dataset from above link, run the sctipts from [Databuilder](https://github.com/shashank140195/finetune_Llama2_LORA/tree/main/dataBuilder) in the order   
+1. jsonbuilder.py to get json files files  
+2. csvbuilder.py to get the .csv files for the model.  
+
+Alternatively you can use the already created .csv files from [datsetfolder](https://github.com/shashank140195/finetune_Llama2_LORA/tree/main/dataset)
+
+## 2. Environment preparation
 ```
 !git clone https://github.com/facebookresearch/llama-recipes.git
 
@@ -25,7 +32,7 @@ os.chdir('/content/llama-recipes')
 !pip install -r requirements.txt
 ```  
 
-# 2. Authorising HF token
+## 3. Authorising HF token
 Once HF request to access the model has been approved, create hugging face token [here](https://huggingface.co/settings/tokens)
 
 Run below cell and enter your token. It will authenticate your HF account
@@ -33,7 +40,7 @@ Run below cell and enter your token. It will authenticate your HF account
 !huggingface-cli login
 ```
 
-# 3. Download the model
+## 4. Download the model
 ```
 import torch
 from transformers import LlamaForCausalLM, LlamaTokenizer, AutoTokenizer, AutoModelForCausalLM
@@ -43,7 +50,7 @@ tokenizer = LlamaTokenizer.from_pretrained(model_id)
 model =LlamaForCausalLM.from_pretrained(model_id, load_in_8bit=True, device_map='auto', torch_dtype=torch.float16)
 ```
 
-# 4. Creating LoRA config
+## 5. Creating LoRA config
 ```
 model.train()
 
@@ -73,7 +80,7 @@ def create_peft_config(model):
 # create peft config
 model, lora_config = create_peft_config(model)
 ```
-# 5. Setting up profiler
+## 6. Setting up profiler
 ```
 from transformers import TrainerCallback
 from contextlib import nullcontext
@@ -113,7 +120,7 @@ else:
     profiler = nullcontext()
 ```
 
-# 6. Preparing dataset for Llama-2 input
+## 7. Preparing dataset for Llama-2 input
 ```
 from transformers import AutoTokenizer
 from datasets import Dataset
@@ -143,7 +150,7 @@ train_dataset = get_dataset("/content/train.csv")
 validate_dataset = get_dataset("/content/valid.csv")
 ```
 
-# 7. Start training the model
+## 8. Start training (fine-tuning) the model
 ```
 from transformers import default_data_collator, Trainer, TrainingArguments
 
@@ -187,3 +194,41 @@ with profiler:
 ```
 
 Alternatively you can find our working script [here](https://github.com/shashank140195/finetune_Llama2_LORA/blob/main/scripts/finetune.py)
+
+## 9. Inference
+Once model is trained, run the [inference](https://github.com/shashank140195/finetune_Llama2_LORA/blob/main/scripts/llama2_inference.py) or below code snippet to make the predictions.
+```
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
+import pandas as pd
+
+PATH_TO_YOUR_TRAINED_MODEL_CHECKPOINT = "checkpoint"
+model = AutoModelForCausalLM.from_pretrained(PATH_TO_YOUR_TRAINED_MODEL_CHECKPOINT)
+
+tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+model = model.to(device)
+
+df = pd.read_csv("/content/test.csv")
+df['prediction'] = None
+
+model.eval()
+with torch.no_grad():
+
+  for i in range(len(df)):
+    text = df.iloc[i]["text"]
+    abc = text.split("output:")
+    input_prompt = abc[0] +"output:"
+    model_input = tokenizer(input_prompt, return_tensors="pt").to("cuda")
+    prediction = tokenizer.decode(model.generate(**model_input, max_new_tokens=1024)[0], skip_special_tokens=True)
+    df["prediction"][i] = prediction
+
+#path to save the predictions
+df.to_csv("prediction.csv", index=False)
+
+```
+
+## 10. Evaluation
+Once you save the predictions.csv file, run [eval](https://github.com/shashank140195/finetune_Llama2_LORA/blob/main/scripts/eval.py) to get the scores on the dataset. 
+
+We reach the score of 23 F1 with 750 steps training using lr 1e-4, rank = 2500 and lora_alpha = 32. 
