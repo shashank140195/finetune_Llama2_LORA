@@ -6,9 +6,9 @@ This repository contains the work to finetune Llama-2 7B HF model using LoRA on 
 visit this [link](https://ai.meta.com/llama/) and request the access to the Llama-2 models.  
 
 ### 2. Requesting model access from Hugging Face
-Once request is approved, use the same email adrress to get the access of the model from HF [here](https://huggingface.co/meta-llama/Llama-2-7b).  
+Once request is approved, use the same email address to get the access of the model from HF [here](https://huggingface.co/meta-llama/Llama-2-7b).  
 
-Once both requests are approved, follow trhe below directions. 
+Once both requests are approved, follow the below directions. 
 
 # Dataset
 The full modified raw dataset is available at this [link](https://drive.google.com/drive/folders/1XkfRKwWdrrV-wdzp9GdEXJHTHit9GbNi?usp=sharing). This dataset has been modified and made error free and has been released publically by me for further research. 
@@ -185,3 +185,5 @@ with profiler:
     # Start training
     trainer.train()
 ```
+
+Alternatively you can find our working script [here](https://github.com/shashank140195/finetune_Llama2_LORA/blob/main/scripts/finetune.py)
