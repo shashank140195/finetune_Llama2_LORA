@@ -14,9 +14,15 @@ Once both requests are approved, follow the below directions.
 The full modified raw dataset is available at this [link](https://drive.google.com/drive/folders/1XkfRKwWdrrV-wdzp9GdEXJHTHit9GbNi?usp=sharing). This dataset has been modified and made error free and has been released publically by me for further research. 
 
 ## 1. Preparing data for the model
-Once you download the dataset from above link, run the sctipts from [Databuilder](https://github.com/shashank140195/finetune_Llama2_LORA/tree/main/dataBuilder) in the order   
+We create the prompt for the model as:  
+```
+instruction:as a relation extractor assistant, identify the relations in this document. do not generate any tokens outside of the document.
+document:lbsl is an extremely rare disorder that was first reported in the medical literature in 2002. according to the nonprofit organization, a cure for ellie, as of april 2018, there are about 100 individuals worldwide who have been identified with the disorder. because rare diseases like lbsl often go undiagnosed or misdiagnosed, it is difficult to determine the true frequency in the general population.
+output: thank you for the information.the relationship between raredisease lbsl and anaphor "the disorder" is antecedent.
+```  
+To create the data like above, download the dataset from above link, run the sctipts from [Databuilder](https://github.com/shashank140195/finetune_Llama2_LORA/tree/main/dataBuilder) in the order   
 1. jsonbuilder.py to get json files files  
-2. csvbuilder.py to get the .csv files for the model.  
+2. csvbuilder.py which takes json file as input and get the .csv files for the model.  
 
 Alternatively you can use the already created .csv files from [datsetfolder](https://github.com/shashank140195/finetune_Llama2_LORA/tree/main/dataset)
 
