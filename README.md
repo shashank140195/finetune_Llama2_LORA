@@ -237,4 +237,4 @@ df.to_csv("prediction.csv", index=False)
 ## 10. Evaluation
 Once you save the predictions.csv file, run [eval](https://github.com/shashank140195/finetune_Llama2_LORA/blob/main/scripts/eval.py) to get the scores on the dataset. 
 
-We reach the score of 23 F1 with 750 steps training using lr 1e-4, rank = 2500 and lora_alpha = 32. 
+We reached the score of 31 F1 with 1500 steps of training using lr 1e-4, rank = 2500, and lora_alpha = 32, beating BioGPT for RE task. 
